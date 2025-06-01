@@ -1,0 +1,51 @@
+@use "../../styles/variables.scss" as variables;
+
+.message {
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  &.sent {
+    .message-body {
+      align-self: flex-end;
+      background: variables.$secondary-color;
+      background: variables.$secondary-gradient;
+      opacity: 0.85;
+    }
+
+    .message-info {
+      align-self: flex-end;
+    }
+  }
+
+  &.received {
+    .message-body {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+  }
+
+  .message-body {
+    display: flex;
+    flex-direction: column;
+    border-radius: 1.3rem;
+    width: fit-content;
+    padding: 0.5rem 1rem;
+    color: white;
+
+    .message-sender {
+      font-weight: bold;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .message-text {
+      margin: 4px 0;
+    }
+  }
+
+  .message-info {
+    font-size: 0.9rem;
+    width: fit-content;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}

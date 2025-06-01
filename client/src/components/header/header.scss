@@ -1,0 +1,41 @@
+.header {
+  height: 6rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem 1rem;
+
+  .header-info {
+    display: flex;
+    flex-direction: column;
+    align-items: self-start;
+    padding: 1rem;
+    flex: 1;
+
+    .header-level-xp {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      height: fit-content;
+      color: rgba(255, 255, 255, 0.5);
+
+      p {
+        margin: 0;
+        font-size: 1rem;
+      }
+    }
+
+    .header-title {
+      margin: 0;
+      font-size: 1.7rem;
+      font-weight: bold;
+    }
+  }
+
+  .menu-icon {
+    width: 2.3rem;
+    opacity: 0.8;
+  }
+}

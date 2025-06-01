@@ -1,0 +1,18 @@
+//colors
+$primary-color: #581c87;
+$primary-color-gradient: linear-gradient(
+  120deg,
+  rgba(88, 28, 135, 1) 0%,
+  rgba(32, 57, 137, 1) 50%,
+  rgba(49, 46, 129, 1) 100%
+);
+$secondary-color: #a855f7;
+$secondary-gradient: linear-gradient(
+  90deg,
+  rgba(168, 85, 247, 1) 25%,
+  rgba(236, 72, 153, 1) 100%
+);
+
+//variables
+$header-height: 6rem;
+$new-message-height: 5rem;

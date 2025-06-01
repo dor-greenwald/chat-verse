@@ -1,0 +1,17 @@
+@use "../../styles/variables.scss" as variables;
+
+.chat-page-container {
+  background: variables.$primary-color;
+  background: variables.$primary-color-gradient;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: hidden;
+
+  .messages {
+    padding: 1rem 0;
+    max-height: calc(
+      100vh - variables.$header-height - variables.$new-message-height
+    );
+    overflow-y: scroll;
+  }
+}

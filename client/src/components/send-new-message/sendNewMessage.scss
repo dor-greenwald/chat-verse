@@ -1,0 +1,52 @@
+@use "../../styles/variables.scss" as variables;
+
+.send-new-message-container {
+  display: flex;
+  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  padding: 0.7rem;
+  height: 5rem;
+
+  .attach-file-button {
+    img {
+      width: 1.5rem;
+      opacity: 0.5;
+    }
+  }
+
+  .message-input {
+    color: white;
+    flex: 1;
+    margin: 0.3rem 0;
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: rgba(255, 255, 255, 0.3);
+      border-radius: 0.7rem;
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .emoji-button {
+    img {
+      width: 1.5rem;
+      opacity: 0.8;
+    }
+  }
+
+  .send-button {
+    width: fit-content;
+    border-radius: 0.5rem;
+    margin: 0.5rem;
+    width: 3.5rem;
+    background: variables.$secondary-color;
+    background: variables.$secondary-gradient;
+    opacity: 0.85;
+
+    img {
+      width: 1.5rem;
+    }
+  }
+}
