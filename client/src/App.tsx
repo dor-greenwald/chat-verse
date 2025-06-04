@@ -1,19 +1,32 @@
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { Chat } from "./pages/chat/Chat";
-import "./app.scss";
+import Login from "./pages/login/Login";
 import { UserProvider } from "./contexts/user/UserProvider";
 import { ChatProvider } from "./contexts/chats/ChatsProvider";
 import { MessagesProvider } from "./contexts/messages/MessagesProvider";
+import "./app.scss";
 
-function App() {
+const App = () => {
   return (
     <UserProvider>
       <ChatProvider>
         <MessagesProvider>
-          <Chat />
+          <Router>
+            <Routes>
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </Router>
         </MessagesProvider>
       </ChatProvider>
     </UserProvider>
   );
-}
+};
 
 export default App;
