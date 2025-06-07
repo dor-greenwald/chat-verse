@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useUser } from "../../contexts/user/UserProvider";
-import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +10,8 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3000/users/login", {
+      console.log("hi");
+      const response = await fetch("http://localhost:3000/users/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ const Login = () => {
         height: "100vh",
       }}
     >
-      <h2>Login</h2>
+      <h2>Sign up</h2>
       <form
         style={{
           display: "flex",
@@ -67,10 +67,6 @@ const Login = () => {
         <button type="submit" onClick={handleLogin}>
           Login
         </button>
-        <a href="/signup">
-          <Navigate to="/login" replace />
-          signup
-        </a>
       </form>
     </div>
   );
