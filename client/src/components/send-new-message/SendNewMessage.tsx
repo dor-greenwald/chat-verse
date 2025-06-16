@@ -6,6 +6,7 @@ import { useMessages } from "../../contexts/messages/MessagesProvider";
 import { useUser } from "../../contexts/user/UserProvider";
 import { useChat } from "../../contexts/chats/ChatsProvider";
 import type { ChatMessage } from "../../interfaces/interfaces";
+import { websocketService } from "../../services/websocket.service";
 
 export const SendNewMessage = () => {
   const [newMessage, setNewMessage] = useState("");
@@ -15,6 +16,20 @@ export const SendNewMessage = () => {
 
   const sendMessage = () => {
     if (!user?.username || !chat?.id || !newMessage.trim()) return;
+
+    // Create message object
+    const message = {
+      content: newMessage,
+      timestamp: new Date().toISOString(),
+      chatId: chat.id,
+      senderId: user.id,
+      senderName: user.username,
+    };
+
+    // Send message through WebSocket
+    websocketService.sendMessage(message);
+
+    // Update local state
     setMessages((prevState: ChatMessage[] | undefined) => [
       ...(prevState || []),
       {
