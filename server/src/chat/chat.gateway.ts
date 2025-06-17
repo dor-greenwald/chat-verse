@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
+import { ChatMessage } from '../interfaces/chat.interface';
 
 // Private variables
 const logger = new Logger('ChatGateway');
@@ -23,34 +24,37 @@ export const createChatGateway = () => {
   })
   class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
     @WebSocketServer()
-    server: Server;
+    server!: Server;
 
-    afterInit(server: Server) {
+    afterInit(server: Server): void {
       globalServer = server;
       logger.log('WebSocket Gateway initialized');
     }
 
-    handleConnection(client: Socket) {
+    handleConnection(client: Socket): void {
       logger.log(`Client connected: ${client.id}`);
       connectedClients.set(client.id, client);
       logger.log(`Total connected clients: ${connectedClients.size}`);
     }
 
-    handleDisconnect(client: Socket) {
+    handleDisconnect(client: Socket): void {
       logger.log(`Client disconnected: ${client.id}`);
       connectedClients.delete(client.id);
       logger.log(`Total connected clients: ${connectedClients.size}`);
     }
 
     @SubscribeMessage('message')
-    handleMessage(client: Socket, payload: any): void {
+    handleMessage(client: Socket, payload: ChatMessage): void {
       logger.log(`Received message from ${client.id}:`, payload);
       
-      // Simulate a response back to the client
-      const response = {
-        type: 'response',
-        content: `Roger that`,
-        timestamp: new Date().toISOString(),
+      // Create a response message in the same format as client's ChatMessage
+      const response: ChatMessage = {
+        id: Date.now().toString(),
+        chatId: payload.chatId,
+        senderId: 'server',
+        senderName: 'Server',
+        text: `Roger that`,
+        createdAt: new Date().toISOString(),
       };
 
       // Send response back to the client
@@ -63,7 +67,7 @@ export const createChatGateway = () => {
 };
 
 // Export utility functions
-export const sendMessageToClient = (clientId: string, message: any) => {
+export const sendMessageToClient = (clientId: string, message: ChatMessage): void => {
   const client = connectedClients.get(clientId);
   if (client) {
     client.emit('message', message);
@@ -73,7 +77,7 @@ export const sendMessageToClient = (clientId: string, message: any) => {
   }
 };
 
-export const broadcastMessage = (message: any) => {
+export const broadcastMessage = (message: ChatMessage): void => {
   if (globalServer) {
     globalServer.emit('message', message);
     logger.log(`Broadcasted message to ${connectedClients.size} clients`);

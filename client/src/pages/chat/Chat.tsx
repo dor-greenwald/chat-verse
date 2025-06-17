@@ -8,55 +8,21 @@ import type { ChatMessage } from "../../interfaces/interfaces";
 import { isSameWeek } from "date-fns";
 import "./chatPage.scss";
 import { UserStatus } from "../../enums/enums";
-import { useEffect, useState } from "react";
-import { websocketService } from "../../services/websocket.service";
+import { useWebSocket } from "../../hooks/useWebSocket";
 
 export const Chat = () => {
   const { messages, setMessages } = useMessages();
   const { chat } = useChat();
   const { user } = useUser();
-  const [isConnected, setIsConnected] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const setupWebSocket = async () => {
-      try {
-        await websocketService.connect();
-        if (mounted) {
-          setIsConnected(true);
-        }
-      } catch (error) {
-        console.error('Failed to connect to WebSocket:', error);
-      }
-    };
-
-    setupWebSocket();
-
-    // Subscribe to messages
-    const unsubscribe = websocketService.onMessage((message: any) => {
-      if (message.type === 'response') {
-        setMessages((prevState: ChatMessage[] | undefined) => [
-          ...(prevState || []),
-          {
-            id: Date.now().toString(),
-            chatId: chat?.id || '',
-            senderId: 'server',
-            text: message.content,
-            senderName: 'Server',
-            createdAt: message.timestamp,
-          },
-        ]);
-      }
-    });
-
-    // Cleanup on unmount
-    return () => {
-      mounted = false;
-      unsubscribe();
-      websocketService.disconnect().catch(console.error);
-    };
-  }, [chat?.id, setMessages]);
+  useWebSocket({
+    onMessage: (message: ChatMessage) => {
+      setMessages((prevState: ChatMessage[] | undefined) => [
+        ...(prevState || []),
+        message
+      ]);
+    }
+  });
 
   const isDayChange = (
     currentMessage: ChatMessage,

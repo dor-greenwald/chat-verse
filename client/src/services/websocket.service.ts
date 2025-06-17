@@ -1,108 +1,105 @@
 import { io, Socket } from 'socket.io-client';
+import type { ChatMessage } from '../interfaces/interfaces';
 
 // Private variables
-let socket: Socket;
-let messageHandlers: ((message: any) => void)[] = [];
-let isConnecting: boolean = false;
-let connectionPromise: Promise<void> | null = null;
+let socket: Socket | null = null;
+let messageHandlers: ((message: ChatMessage) => void)[] = [];
+const SOCKET_URL = 'http://localhost:3000';
 
-// Initialize socket
-const initializeSocket = () => {
-  socket = io('http://localhost:3000', {
-    transports: ['websocket'],
-    autoConnect: false,
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-  });
-
-  socket.on('connect', () => {
-    console.log('Connected to WebSocket server');
-    isConnecting = false;
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Disconnected from WebSocket server');
-    isConnecting = false;
-  });
-
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error);
-    isConnecting = false;
-  });
-
-  socket.on('message', (message: any) => {
-    messageHandlers.forEach(handler => handler(message));
-  });
-};
-
-// Initialize socket on module load
-initializeSocket();
-
-// Public API
 export const websocketService = {
-  async connect() {
-    if (socket.connected) {
+  async connect(): Promise<void> {
+    if (socket?.connected) {
       return;
     }
 
-    if (isConnecting) {
-      return connectionPromise;
-    }
-
-    isConnecting = true;
-    connectionPromise = new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        isConnecting = false;
-        reject(new Error('Connection timeout'));
-      }, 5000);
-
-      socket.once('connect', () => {
-        clearTimeout(timeout);
-        resolve();
-      });
-
-      socket.once('connect_error', (error) => {
-        clearTimeout(timeout);
-        isConnecting = false;
-        reject(error);
-      });
-
-      socket.connect();
+    socket = io(SOCKET_URL, {
+      transports: ['websocket'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 20000,
+      autoConnect: true
     });
 
-    return connectionPromise;
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('Disconnected from WebSocket server. Reason:', reason);
+      // Only attempt to reconnect if it wasn't a client-initiated disconnect
+      if (reason !== 'io client disconnect') {
+        console.log('Attempting to reconnect...');
+        socket?.connect();
+      }
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+    });
+
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
+    });
+
+    socket.on('message', (message: ChatMessage) => {
+      console.log('Received message:', {
+        id: message.id,
+        chatId: message.chatId,
+        senderId: message.senderId,
+        senderName: message.senderName,
+        text: message.text,
+        createdAt: message.createdAt
+      });
+      messageHandlers.forEach(handler => handler(message));
+    });
+
+    return new Promise((resolve, reject) => {
+      if (!socket) {
+        reject(new Error('Socket not initialized'));
+        return;
+      }
+
+      socket.on('connect', () => resolve());
+      socket.on('connect_error', (error) => reject(error));
+    });
   },
 
-  async disconnect() {
-    if (!socket.connected) {
-      return;
-    }
-
-    return new Promise<void>((resolve) => {
-      socket.once('disconnect', () => {
-        resolve();
-      });
+  async disconnect(): Promise<void> {
+    if (socket) {
+      // Remove all listeners before disconnecting
+      socket.removeAllListeners();
       socket.disconnect();
+      socket = null;
+    }
+  },
+
+  sendMessage(message: ChatMessage): void {
+    if (!socket?.connected) {
+      console.error('Cannot send message: Socket not connected');
+      throw new Error('Socket not connected');
+    }
+    console.log('Sending message:', {
+      id: message.id,
+      chatId: message.chatId,
+      senderId: message.senderId,
+      senderName: message.senderName,
+      text: message.text,
+      createdAt: message.createdAt
+    });
+    socket.emit('message', message, (error: Error | null) => {
+      if (error) {
+        console.error('Error sending message:', error);
+      } else {
+        console.log('Message sent successfully');
+      }
     });
   },
 
-  sendMessage(message: any) {
-    if (!socket.connected) {
-      console.warn('Socket is not connected. Message not sent:', message);
-      return;
-    }
-    socket.emit('message', message);
-  },
-
-  onMessage(handler: (message: any) => void) {
+  onMessage(handler: (message: ChatMessage) => void): () => void {
     messageHandlers.push(handler);
     return () => {
       messageHandlers = messageHandlers.filter(h => h !== handler);
     };
-  },
-
-  isConnected() {
-    return socket.connected;
   }
 }; 
