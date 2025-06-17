@@ -13,6 +13,7 @@ import { MessageAttachmentsModule } from './message-attachments/message-attachme
 import { FriendModule } from './friend/friend.module';
 import { AchievementsModule } from './achievements/achievements.module';
 import { QuestsModule } from './quests/quests.module';
+import { createChatGateway } from './chat/chat.gateway';
 
 @Module({
   imports: [
@@ -36,6 +37,6 @@ import { QuestsModule } from './quests/quests.module';
     QuestsModule,
   ],
   controllers: [AppController, GroupChatController],
-  providers: [AppService, GroupChatService],
+  providers: [AppService, GroupChatService, createChatGateway()],
 })
 export class AppModule {}
