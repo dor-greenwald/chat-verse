@@ -8,21 +8,25 @@ import type { ChatMessage } from "../../interfaces/interfaces";
 import { isSameWeek } from "date-fns";
 import "./chatPage.scss";
 import { UserStatus } from "../../enums/enums";
-import { useWebSocket } from "../../hooks/useWebSocket";
+import { useEffect } from "react";
+import { useWebSocketContext } from "../../contexts/websocket/WebSocketProvider";
+import React from "react";
 
 export const Chat = () => {
   const { messages, setMessages } = useMessages();
   const { chat } = useChat();
   const { user } = useUser();
+  const { onMessage } = useWebSocketContext();
 
-  useWebSocket({
-    onMessage: (message: ChatMessage) => {
+  useEffect(() => {
+    const unsubscribe = onMessage((message: ChatMessage) => {
       setMessages((prevState: ChatMessage[] | undefined) => [
         ...(prevState || []),
         message
       ]);
-    }
-  });
+    });
+    return () => unsubscribe();
+  }, [setMessages, onMessage]);
 
   const isDayChange = (
     currentMessage: ChatMessage,
@@ -104,9 +108,8 @@ export const Chat = () => {
           )
           .map((message, index) => {
             return (
-              <>
+              <React.Fragment key={message.id}>
                 <Message
-                  key={message.id}
                   text={message.text}
                   senderName={message.senderName}
                   timestamp={new Date(message.createdAt).toLocaleTimeString(
@@ -127,7 +130,7 @@ export const Chat = () => {
                       )}
                     </div>
                   )}
-              </>
+              </React.Fragment>
             );
           })}
       </div>

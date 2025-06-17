@@ -15,10 +15,10 @@ import "./app.scss";
 
 const App = () => {
   return (
-    <UserProvider>
-      <ChatProvider>
-        <MessagesProvider>
-          <WebSocketProvider>
+    <WebSocketProvider>
+      <UserProvider>
+        <ChatProvider>
+          <MessagesProvider>
             <Router>
               <Routes>
                 <Route path="/chat" element={<Chat />} />
@@ -27,10 +27,10 @@ const App = () => {
                 <Route path="*" element={<Navigate to="/login" replace />} />
               </Routes>
             </Router>
-          </WebSocketProvider>
-        </MessagesProvider>
-      </ChatProvider>
-    </UserProvider>
+          </MessagesProvider>
+        </ChatProvider>
+      </UserProvider>
+    </WebSocketProvider>
   );
 };
 
