@@ -18,9 +18,10 @@ export const SendNewMessage = () => {
     if (!user?.username || !chat?.id || !newMessage.trim()) return;
 
     // Create message object
-    const message = {
-      content: newMessage,
-      timestamp: new Date().toISOString(),
+    const message: ChatMessage = {
+      id: Date.now().toString(),
+      text: newMessage,
+      createdAt: new Date().toISOString(),
       chatId: chat.id,
       senderId: user.id,
       senderName: user.username,
@@ -32,14 +33,7 @@ export const SendNewMessage = () => {
     // Update local state
     setMessages((prevState: ChatMessage[] | undefined) => [
       ...(prevState || []),
-      {
-        id: Date.now().toString(),
-        chatId: chat.id,
-        senderId: user.id,
-        text: newMessage,
-        senderName: user.username!,
-        createdAt: new Date().toISOString(),
-      },
+      message,
     ]);
     setNewMessage("");
   };
