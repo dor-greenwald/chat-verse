@@ -10,7 +10,7 @@ import { User } from './user.entity';
 @Entity()
 export class Friend {
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @ManyToOne(() => User, (user) => user.friends)
   user: User;

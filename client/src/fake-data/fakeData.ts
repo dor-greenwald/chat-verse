@@ -38,16 +38,6 @@ export const fakeChatData: Chat = {
   groupName: undefined,
 };
 
-export const fakeUserData: User = {
-  id: "user1",
-  username: "Bob",
-  status: UserStatus.Online,
-  totalXp: 1500,
-  level: 5,
-  achievements: [],
-  friends: ["user2", "user3"],
-};
-
 const fakeUsersData: User[] = [
   {
     id: "user1",
