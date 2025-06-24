@@ -1,36 +1,22 @@
-import { useState } from "react";
+  import { useState } from "react";
+  import { Navigate, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 import { useUser } from "../../contexts/user/UserProvider";
-import { Navigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUser } = useUser();
+  const { login, isLoginPending } = useAuth();
+  const navigate = useNavigate();
+  // if user is already logged in, redirect to chat page
+  const { user } = useUser();
+  if (user) {
+    navigate("/chat");
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    try {
-      const response = await fetch("http://localhost:3000/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        alert(`Login failed: ${errorData.message || response.statusText}`);
-        return;
-      }
-
-      const user = await response.json();
-      setUser(user);
-    } catch (error) {
-      alert("Login failed: Network or server error");
-      console.error(error);
-    }
+    login({ email, password });
   };
 
   return (
@@ -57,15 +43,17 @@ const Login = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Username"
+          disabled={isLoginPending}
         />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
+          disabled={isLoginPending}
         />
-        <button type="submit" onClick={handleLogin}>
-          Login
+        <button type="submit" onClick={handleLogin} disabled={isLoginPending}>
+          {isLoginPending ? "Logging in..." : "Login"}
         </button>
         <a href="/signup">
           <Navigate to="/login" replace />
