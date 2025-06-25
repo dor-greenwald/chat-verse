@@ -10,24 +10,27 @@ import Signup from "./pages/signup/Signup";
 import { UserProvider } from "./contexts/user/UserProvider";
 import { ChatProvider } from "./contexts/chats/ChatsProvider";
 import { MessagesProvider } from "./contexts/messages/MessagesProvider";
+import { WebSocketProvider } from './contexts/websocket/WebSocketProvider';
 import "./app.scss";
 
 const App = () => {
   return (
-    <UserProvider>
-      <ChatProvider>
-        <MessagesProvider>
-          <Router>
-            <Routes>
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="*" element={<Navigate to="/login" replace />} />
-            </Routes>
-          </Router>
-        </MessagesProvider>
-      </ChatProvider>
-    </UserProvider>
+    <WebSocketProvider>
+      <UserProvider>
+        <ChatProvider>
+          <MessagesProvider>
+            <Router>
+              <Routes>
+                <Route path="/chat" element={<Chat />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
+              </Routes>
+            </Router>
+          </MessagesProvider>
+        </ChatProvider>
+      </UserProvider>
+    </WebSocketProvider>
   );
 };
 
