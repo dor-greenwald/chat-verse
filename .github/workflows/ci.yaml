@@ -1,0 +1,64 @@
+name: "CI"
+
+on:
+    push:
+        branches:
+            - "main"
+    pull_request:
+        types:
+            - "opened"
+            - "synchronize"
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    ci:
+        name: "Continuous Integration"
+        runs-on: "self-hosted"
+        env:
+            TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+
+        steps:
+            - name: "Checkout 📨"
+              uses: "actions/checkout@v4"
+              with:
+                  fetch-depth: 0
+
+            - name: "Turbo Cache 📫"
+              uses: "actions/cache@v4"
+              with:
+                  path: ".turbo"
+                  key: "${{ runner.os }}-turbo-${{ github.sha }}"
+                  restore-keys: "${{ runner.os }}-turbo-"
+
+            - name: "Setup NodeJS 🏭"
+              uses: "actions/setup-node@v4"
+              with:
+                  node-version-file: .nvmrc
+
+            - name: "Setup PNPM 🔨"
+              uses: "pnpm/action-setup@v4"
+              with:
+                  run_install: false
+                  dest: "${{ runner.temp }}/.pnpm"
+
+            - name: "Install Dependencies 📎"
+              run: "pnpm install"
+
+            - name: "Validate Commit ✏️ (Push)"
+              if: github.event_name == 'push'
+              run: "pnpm exec commitlint --last --verbose"
+
+            - name: "Validate Commits 📝 (PR)"
+              if: github.event_name == 'pull_request'
+              run: |
+                  pnpm exec commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+            - name: "Turbo Pipeline 🚀"
+              run: "pnpm pipeline --cache-dir=.turbo --affected"
+
+            # Run separately because Knip needs to be from root and we don't want it to be skipped when using `--affected`
+            - name: "Knip ✂️"
+              run: "pnpm knip"
